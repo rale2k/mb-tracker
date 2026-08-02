@@ -9,6 +9,8 @@ The repository also contains a simple grafana and prometheus deployment setup, w
 
 The Grafana dashboard uses `VINCODE` as the VIN placeholder. Which should be replaced.
 
+Be wary of rate limits - Daimler can (temporarily) block your account quickly.
+
 ## Monitor
 
 Build and run the monitor from the repository root:
