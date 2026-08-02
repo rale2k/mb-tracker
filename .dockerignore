@@ -1,0 +1,13 @@
+auth.json
+.env
+.env.*
+.git
+.gitignore
+.pnp.*
+.yarn/
+node_modules/
+build/
+deployment/
+docs/
+.vscode/
+*.log

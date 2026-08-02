@@ -55,9 +55,9 @@ full_updates_total{vin="W..."} 1
 ```
 
 ## Credits
+ * [ReneNulschDE/mbapi2020](https://github.com/ReneNulschDE/mbapi2020) 
+  -- all of the underlying work reverse engineering the MB API
  * [TA2k/ioBroker.mercedesme](https://github.com/TA2k/ioBroker.mercedesme)
  -- protobuf definitions
- * [ReneNulschDE/mbapi2020](https://github.com/ReneNulschDE/mbapi2020) 
-  -- all of the underlying work reverse engineering the MB ME
  * [jakobgoerke/mercedes-benz-client](https://github.com/jakobgoerke/mercedes-benz-client) 
  -- formalizing the previous 2 works into a neat javascript library

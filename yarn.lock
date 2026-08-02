@@ -76,17 +76,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"benz-monitor@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "benz-monitor@workspace:."
-  dependencies:
-    "@jakobgoerke/mercedes-benz-client": "npm:^0.1.13"
-    "@types/node": "npm:26.1.1"
-    prom-client: "npm:^15.1.3"
-    typescript: "npm:6.0.3"
-  languageName: unknown
-  linkType: soft
-
 "bintrees@npm:1.0.2":
   version: 1.0.2
   resolution: "bintrees@npm:1.0.2"
@@ -301,6 +290,17 @@ __metadata:
   checksum: 10c0/7579ff94e899e2f76ab64491d76cf606274c874d8f2af4a442c016bd85688927fcfca157ba6bf74b08e9439dc010b248ce05b96cc7c126a354c3bae7fcb48b7f
   languageName: node
   linkType: hard
+
+"mb-tracker@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "mb-tracker@workspace:."
+  dependencies:
+    "@jakobgoerke/mercedes-benz-client": "npm:^0.1.13"
+    "@types/node": "npm:26.1.1"
+    prom-client: "npm:^15.1.3"
+    typescript: "npm:6.0.3"
+  languageName: unknown
+  linkType: soft
 
 "mime-db@npm:1.52.0":
   version: 1.52.0

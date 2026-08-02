@@ -7,6 +7,7 @@ import { VehicleStateStore } from './state.js';
 
 async function main(): Promise<void> {
 	const config = readConfig();
+	console.log(`starting monitor: host=${config.host} port=${config.port} retry_delay_ms=${config.retryDelayMs}`);
 	const auth = readAuthConfigFromEnv();
 	const client = new MercedesBenzClient({ deviceId: auth.deviceId, token: auth.token });
 	const stream = new VehicleEventStream(client);
@@ -18,23 +19,37 @@ async function main(): Promise<void> {
 	stream.on('connected', () => {
 		streamIsConnected = true;
 		metrics.setStreamConnected(true);
+		console.log('vehicle event stream connected');
 	});
-	stream.on('disconnected', () => {
+	stream.on('disconnected', (reason) => {
 		streamIsConnected = false;
 		metrics.setStreamConnected(false);
+		console.warn(`vehicle event stream disconnected: ${reason || 'unknown reason'}`);
 	});
 	stream.on('error', (error) => {
 		console.error(`stream error: ${error.message}`);
 	});
+	stream.on('assignedVehicles', (vins) => {
+		console.log(`assigned vehicles: count=${vins.length} vins=${vins.join(',') || 'none'}`);
+	});
 	stream.on('update', (update) => {
+		const attributeCount = Object.keys(update.attributes ?? {}).length;
+		console.log(
+			`vehicle update: vin=${update.vin || 'unknown'} type=${update.fullUpdate ? 'full' : 'partial'} attributes=${attributeCount}`,
+		);
 		const state = stateStore.apply(update);
-		if (state) metrics.observe(state, update.fullUpdate);
+		if (!state) {
+			console.warn('vehicle update ignored: missing VIN');
+			return;
+		}
+		metrics.observe(state, update.fullUpdate);
 	});
 
 	const server = createHttpServer(metrics, () => streamIsConnected);
 	const shutdown = (): void => {
 		if (stopping) return;
 		stopping = true;
+		console.log('shutting down monitor');
 		stream.close();
 		server.close();
 	};
@@ -43,14 +58,19 @@ async function main(): Promise<void> {
 	process.once('SIGTERM', shutdown);
 	metrics.setStreamConnected(false);
 	await listen(server, config.host, config.port);
-	console.log(`listening on ${config.host}:${config.port}`);
+	console.log(`HTTP server listening: host=${config.host} port=${config.port}`);
 
+	let connectionAttempt = 0;
 	while (!stopping) {
+		connectionAttempt++;
+		console.log(`connecting to vehicle event stream: attempt=${connectionAttempt}`);
 		try {
 			await stream.connect();
 			return;
-		} catch {
-			console.error('stream connection failed; retrying');
+		} catch (error: unknown) {
+			console.error(
+				`stream connection failed: ${error instanceof Error ? error.message : String(error)}; retrying in ${config.retryDelayMs}ms`,
+			);
 			await delay(config.retryDelayMs);
 		}
 	}
