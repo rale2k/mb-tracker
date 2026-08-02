@@ -7,9 +7,13 @@ import { VehicleStateStore } from './state.js';
 
 async function main(): Promise<void> {
 	const config = readConfig();
-	console.log(`starting monitor: host=${config.host} port=${config.port} retry_delay_ms=${config.retryDelayMs}`);
+	console.log(
+		`starting monitor: host=${config.host} port=${config.port} retry_delay_ms=${config.retryDelayMs} login_interval_ms=${config.loginIntervalMs}`,
+	);
 	const auth = readAuthConfigFromEnv();
-	const client = new MercedesBenzClient({ deviceId: auth.deviceId, token: auth.token });
+	const client = new MercedesBenzClient({ deviceId: auth.deviceId });
+	await client.login(auth.email, auth.password);
+	console.log('Mercedes login successful');
 	const stream = new VehicleEventStream(client);
 	const stateStore = new VehicleStateStore();
 	const metrics = new PrometheusMetrics();
@@ -59,6 +63,17 @@ async function main(): Promise<void> {
 	metrics.setStreamConnected(false);
 	await listen(server, config.host, config.port);
 	console.log(`HTTP server listening: host=${config.host} port=${config.port}`);
+
+	setInterval(() => {
+		void client
+			.login(auth.email, auth.password)
+			.then(() => console.log('Mercedes login refreshed'))
+			.catch((error: unknown) => {
+				console.error(
+					`Mercedes login refresh failed: ${error instanceof Error ? error.message : String(error)}`,
+				);
+			});
+	}, config.loginIntervalMs).unref();
 
 	let connectionAttempt = 0;
 	while (!stopping) {

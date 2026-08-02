@@ -27,13 +27,14 @@ Set `PORT` to use a different port.
 Provide the authentication environment variables before starting the monitor:
 
 ```sh
-export MERCEDES_DEVICE_ID='...'
-export MERCEDES_ACCESS_TOKEN='...'
-export MERCEDES_REFRESH_TOKEN='...'
-export MERCEDES_EXPIRES_AT=''
+export MERCEDES_DEVICE_ID='YOUR_STABLE_DEVICE_ID'
+export MERCEDES_EMAIL='YOUR_EMAIL'
+export MERCEDES_PASSWORD="$MERCEDES_PASSWORD_SECRET"
 ```
 
-The neccessary credentials can be obtained by using [jakobgoerkes login script](https://github.com/jakobgoerke/mercedes-benz-client/blob/main/scripts/login.ts).
+`MERCEDES_DEVICE_ID` should remain stable across restarts and re-logins. 
+
+Periodic re-login defaults to 12 hours. Set `MERCEDES_LOGIN_INTERVAL_MS` to a shorter or otherwise configured interval in milliseconds.
 
 Alternatively, just use Docker:
 ```
@@ -45,13 +46,12 @@ docker run -d \
   --name mb-tracker \
   --restart unless-stopped \
   -p 9464:9464 \
-  -e MERCEDES_DEVICE_ID="YOUR_DEVICE_ID" \
-  -e MERCEDES_ACCESS_TOKEN="YOUR_ACCESS_TOKEN" \
-  -e MERCEDES_REFRESH_TOKEN="YOUR_REFRESH_TOKEN" \
-  -e MERCEDES_EXPIRES_AT="YOUR_EXPIRES_AT_IN_MILLISECONDS" \
+  -e MERCEDES_DEVICE_ID="YOUR_STABLE_DEVICE_ID" \
+  -e MERCEDES_EMAIL="YOUR_EMAIL" \
+  -e MERCEDES_PASSWORD="$MERCEDES_PASSWORD_SECRET" \
   mb-tracker:latest
 ```
-or set vars in [docker-compose.yml](./docker-compose.yml) and use Docker compose.
+Set the variables in [docker-compose.yml](./docker-compose.yml) from the deployment environment.
 
 ```
 docker compose up -d --build

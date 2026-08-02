@@ -1,9 +1,8 @@
-import type { Token } from '@jakobgoerke/mercedes-benz-client';
-
 export interface MonitorConfig {
 	host: string;
 	port: number;
 	retryDelayMs: number;
+	loginIntervalMs: number;
 }
 
 export function readConfig(env: NodeJS.ProcessEnv = process.env): MonitorConfig {
@@ -11,19 +10,15 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env): MonitorConfig 
 		host: env.HOST ?? '0.0.0.0',
 		port: parsePort(env.PORT ?? '9464'),
 		retryDelayMs: 30_000,
+		loginIntervalMs: parseLoginInterval(env.MERCEDES_LOGIN_INTERVAL_MS ?? `${12 * 60 * 60 * 1000}`),
 	};
 }
 
 export function readAuthConfigFromEnv(env: NodeJS.ProcessEnv = process.env) {
-	const token = {
-		accessToken: requiredEnv(env, 'MERCEDES_ACCESS_TOKEN'),
-		refreshToken: requiredEnv(env, 'MERCEDES_REFRESH_TOKEN'),
-		expiresAt: requiredTimestamp(env, 'MERCEDES_EXPIRES_AT'),
-	} satisfies Token;
-
 	return {
 		deviceId: requiredEnv(env, 'MERCEDES_DEVICE_ID'),
-		token,
+		email: requiredEnv(env, 'MERCEDES_EMAIL'),
+		password: requiredEnv(env, 'MERCEDES_PASSWORD'),
 	};
 }
 
@@ -35,14 +30,16 @@ function parsePort(value: string): number {
 	return port;
 }
 
+function parseLoginInterval(value: string): number {
+	const interval = Number(value);
+	if (!Number.isSafeInteger(interval) || interval < 1 || interval > 2_147_483_647) {
+		throw new Error('MERCEDES_LOGIN_INTERVAL_MS must be an integer between 1 and 2147483647');
+	}
+	return interval;
+}
+
 function requiredEnv(env: NodeJS.ProcessEnv, name: string): string {
 	const value = env[name]?.trim();
 	if (!value) throw new Error(`${name} environment variable is required`);
-	return value;
-}
-
-function requiredTimestamp(env: NodeJS.ProcessEnv, name: string): number {
-	const value = Number(requiredEnv(env, name));
-	if (!Number.isFinite(value)) throw new Error(`${name} must be a finite Unix timestamp in milliseconds`);
 	return value;
 }
