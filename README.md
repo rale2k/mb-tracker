@@ -35,6 +35,28 @@ export MERCEDES_EXPIRES_AT=''
 
 The neccessary credentials can be obtained by using [jakobgoerkes login script](https://github.com/jakobgoerke/mercedes-benz-client/blob/main/scripts/login.ts).
 
+Alternatively, just use Docker:
+```
+docker build --platform linux/arm64 -t mb-tracker:latest .
+```
+
+```
+docker run -d \
+  --name mb-tracker \
+  --restart unless-stopped \
+  -p 9464:9464 \
+  -e MERCEDES_DEVICE_ID="YOUR_DEVICE_ID" \
+  -e MERCEDES_ACCESS_TOKEN="YOUR_ACCESS_TOKEN" \
+  -e MERCEDES_REFRESH_TOKEN="YOUR_REFRESH_TOKEN" \
+  -e MERCEDES_EXPIRES_AT="YOUR_EXPIRES_AT_IN_MILLISECONDS" \
+  mb-tracker:latest
+```
+or set vars in [docker-compose.yml](./docker-compose.yml) and use Docker compose.
+
+```
+docker compose up -d --build
+```
+
 ## Metric examples
 
 Vehicle attributes keep their raw valid names and use only the VIN label:

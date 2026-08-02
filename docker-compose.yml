@@ -1,0 +1,15 @@
+services:
+  mb-tracker:
+    platform: linux/arm64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mb-tracker:latest
+    restart: unless-stopped
+    ports:
+      - "9464:9464"
+    environment:
+      MERCEDES_DEVICE_ID: "YOUR_DEVICE_ID"
+      MERCEDES_ACCESS_TOKEN: "YOUR_ACCESS_TOKEN"
+      MERCEDES_REFRESH_TOKEN: "YOUR_REFRESH_TOKEN"
+      MERCEDES_EXPIRES_AT: "YOUR_EXPIRES_AT_IN_MILLISECONDS"
